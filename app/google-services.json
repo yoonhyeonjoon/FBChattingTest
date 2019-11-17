@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "944044282164",
+    "firebase_url": "https://chattingtest-e917c.firebaseio.com",
+    "project_id": "chattingtest-e917c",
+    "storage_bucket": "chattingtest-e917c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:944044282164:android:35a1900c16f371ab7f9561",
+        "android_client_info": {
+          "package_name": "com.example.fbchattingtest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "944044282164-7hfkrnjbo0921puofoc6tl5i668ka5it.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.fbchattingtest",
+            "certificate_hash": "8d541972c05ac2b99a2e90f213078250611eec8a"
+          }
+        },
+        {
+          "client_id": "944044282164-nqs9dvfnnlbmcerbv9tu7nube1r3sqa9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB54FUtRmI_p9_KYPOHcLrTfNk73gYgscQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "944044282164-nqs9dvfnnlbmcerbv9tu7nube1r3sqa9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
