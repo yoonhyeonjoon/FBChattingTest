@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.View.OnClickListener
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
@@ -14,6 +13,8 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.example.fbchattingtest.ChatModule.SelectUserActivity
+import com.example.fbchattingtest.fragments.ChatRoomFragment
+import com.example.fbchattingtest.fragments.UserListFragment
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -30,13 +31,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val toolbar: Toolbar = findViewById(R.id.toolbar) as Toolbar
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
         mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
         //mViewPager = findViewById<ViewPager>(R.id.container)
         mViewPager?.adapter = mSectionsPagerAdapter
-        val tabLayout: TabLayout = findViewById<TabLayout>(R.id.tabs)
+        val tabLayout: TabLayout = findViewById(R.id.tabs)
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener{
 
             @SuppressLint("RestrictedApi")
@@ -66,7 +67,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    internal fun sendRegistrationToServer() {
+    private fun sendRegistrationToServer() {
         val uid =
             FirebaseAuth.getInstance().currentUser!!.uid
         val token =
@@ -104,13 +105,13 @@ class MainActivity : AppCompatActivity() {
      * A [FragmentPagerAdapter] that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    class SectionsPagerAdapter(fm: FragmentManager?) : FragmentPagerAdapter(fm) {
+    class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
        override fun getItem(position: Int): Fragment {
             return when (position) {
                 0 -> UserListFragment()
                 1 -> ChatRoomFragment()
-                else -> UserFragment()
+                else -> ChatRoomFragment() // A
             }
         }
 

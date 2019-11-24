@@ -1,115 +1,122 @@
 package com.example.fbchattingtest.photoview
 
-class ViewPagerActivity:AppCompatActivity() {
-    private val rootPath = Util9.getRootPath() + "/DirectTalk9/"
-    internal var downloadBtnClickListener:Button.OnClickListener = object:View.OnClickListener() {
-        fun onClick(view:View) {
-            if (!Util9.isPermissionGranted(view.getContext() as Activity, Manifest.permission.WRITE_EXTERNAL_STORAGE))
-            {
-                return
-            }
-            val message = imgList.get(viewPager.getCurrentItem())
-            /// showProgressDialog("Downloading File.");
-            val localFile = File(rootPath, message.getFilename())
-            // realname == message.msg
-            FirebaseStorage.getInstance().getReference().child("files/" + message.getMsg()).getFile(localFile).addOnSuccessListener(object:OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                fun onSuccess(taskSnapshot:FileDownloadTask.TaskSnapshot) {
-                    // hideProgressDialog();
-                    Util9.showMessage(view.getContext(), "Downloaded file")
-                    Log.e("DirectTalk9 ", "local file created " + localFile.toString())
-                }
-            }).addOnFailureListener(object:OnFailureListener() {
-                fun onFailure(@NonNull exception:Exception) {
-                    Log.e("DirectTalk9 ", "local file not created " + exception.toString())
-                }
-            })
-        }
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.app.Activity
+import android.os.Bundle
+import android.util.Log
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.viewpager.widget.PagerAdapter
+import androidx.viewpager.widget.ViewPager
+import com.bumptech.glide.Glide
+import com.example.fbchattingtest.R
+import com.example.fbchattingtest.functionals.helpers
+import com.example.fbchattingtest.models.Message
+import com.example.fbchattingtest.models.UserModel
+import com.github.chrisbanes.photoview.PhotoView
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import kotlinx.android.synthetic.main.activity_view_pager.*
+import java.io.File
+
+class ViewPagerActivity: AppCompatActivity() {
+
+    companion object {
+        lateinit var roomID:String
+        lateinit var  realname:String
+        lateinit var  viewPager: ViewPager
+        lateinit var  imgList : ArrayList<Message>
     }
-    internal var rotateBtnClickListener:Button.OnClickListener = object:View.OnClickListener() {
-        fun onClick(view:View) {
-            val child = viewPager.getChildAt(viewPager.getCurrentItem())
-            val photoView = child.findViewById(R.id.photoView)
-            photoView.setRotation(photoView.getRotation() + 90)
-        }
-    }
-    fun onCreate(savedInstanceState:Bundle) {
+
+    private val rootPath = helpers.rootPath + "/DirectTalk9/"
+
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_pager)
-        val toolbar = findViewById(R.id.toolbar) as Toolbar
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
-        roomID = getIntent().getStringExtra("roomID")
-        realname = getIntent().getStringExtra("realname")
+        roomID = intent.getStringExtra("roomID")
+        realname = intent.getStringExtra("realname")
         viewPager = findViewById(R.id.view_pager)
-        viewPager.setAdapter(SamplePagerAdapter())
-        findViewById(R.id.downloadBtn).setOnClickListener(downloadBtnClickListener)
-        //findViewById(R.id.rotateBtn).setOnClickListener(rotateBtnClickListener);
-        val actionBar = getSupportActionBar()
-        //actionBar.setIcon(R.drawable.back);
-        actionBar.setTitle("PhotoView")
-        actionBar.setDisplayHomeAsUpEnabled(true)
-        actionBar.setHomeButtonEnabled(true)
+        viewPager.adapter = SamplePagerAdapter()
+
+        downloadBtn.setOnClickListener {
+
+            if (!helpers.isPermissionGranted(applicationContext as Activity, WRITE_EXTERNAL_STORAGE))
+                return@setOnClickListener
+
+            val message = imgList[viewPager.currentItem]
+            val localFile = File(rootPath, message.filename)
+            FirebaseStorage.getInstance().reference.child("files/" + message.getMsg()).getFile(localFile).addOnSuccessListener{
+                helpers.showMessage(applicationContext, "Downloaded file")
+                Log.e("DirectTalk9 ", "local file created $localFile")
+            }.addOnFailureListener{
+                Log.e("DirectTalk9 ", "local file not created $it")
+            }
+
+        }
+        val actionBar = supportActionBar
+        actionBar?.setTitle("PhotoView")
+        actionBar?.setDisplayHomeAsUpEnabled(true)
+        actionBar?.setHomeButtonEnabled(true)
     }
-    fun onOptionsItemSelected(item:MenuItem):Boolean {
-        when (item.getItemId()) {
+    override fun onOptionsItemSelected(item: MenuItem):Boolean {
+        return when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()
-                return true
+                true
             }
-            else -> return super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
     }
-    internal class SamplePagerAdapter:PagerAdapter() {
-        private val storageReference:StorageReference
-        private val inx = -1
-        val count:Int
-            get() {
-                return imgList.size()
-            }
+    inner class SamplePagerAdapter: PagerAdapter() {
+        private val storageReference: StorageReference = FirebaseStorage.getInstance().reference
+        private var inx = -1
+
         init{
-            storageReference = FirebaseStorage.getInstance().getReference()
             FirebaseFirestore.getInstance().collection("rooms").document(roomID).collection("messages").whereEqualTo("msgtype", "1")
                 .get()
-                .addOnCompleteListener(object:OnCompleteListener<QuerySnapshot>() {
-                    fun onComplete(@NonNull task:Task<QuerySnapshot>) {
-                        if (!task.isSuccessful()) {
-                            return
-                        }
-                        for (document in task.getResult())
-                        {
-                            val message = document.toObject(Message::class.java)
-                            imgList.add(message)
-                            if (realname == message.getMsg()) {
-                                inx = imgList.size() - 1
-                            }
-                        }
-                        notifyDataSetChanged()
-                        if (inx > -1)
-                        {
-                            viewPager.setCurrentItem(inx)
+                .addOnCompleteListener{
+                    if (!it.isSuccessful) {
+                        return@addOnCompleteListener
+                    }
+                    for (document in it.result!!)
+                    {
+                        val message = document.toObject(Message::class.java)
+                        imgList.add(message)
+                        if (realname == message.msg) {
+                            inx = imgList.size - 1
                         }
                     }
-                })
+                    notifyDataSetChanged()
+                    if (inx > -1)
+                    {
+                        viewPager.currentItem = inx
+                    }
+                }
+
+
         }
-        fun instantiateItem(container:ViewGroup, position:Int):View {
-            val photoView = PhotoView(container.getContext())
-            photoView.setId(R.id.photoView)
-            Glide.with(container.getContext())
+        override fun getCount() : Int = imgList.size
+        override fun instantiateItem(container:ViewGroup, position:Int):View {
+            val photoView = PhotoView(container.context)
+            photoView.id = R.id.photoView
+            Glide.with(container.context)
                 .load(storageReference.child("filesmall/" + imgList.get(position).getMsg()))
                 .into(photoView)
-            container.addView(photoView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+            container.addView(photoView, MATCH_PARENT, MATCH_PARENT)
             return photoView
         }
-        fun destroyItem(container:ViewGroup, position:Int, `object`:Any) {
+        override fun destroyItem(container:ViewGroup, position:Int, `object`:Any) {
             container.removeView(`object` as View)
         }
-        fun isViewFromObject(view:View, `object`:Any):Boolean {
+        override fun isViewFromObject(view:View, `object`:Any):Boolean {
             return view === `object`
         }
-    }
-    companion object {
-        private val roomID:String
-        private val realname:String
-        private val viewPager:ViewPager
-        private val imgList = ArrayList()
     }
 }

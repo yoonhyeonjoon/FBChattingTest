@@ -8,7 +8,8 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
-import com.example.fbchattingtest.Fragments.ChatFragment
+import com.example.fbchattingtest.fragments.ChatFragment
+import com.example.fbchattingtest.fragments.UserListInRoomFragment
 import com.example.fbchattingtest.R
 import kotlinx.android.synthetic.main.activity_chat.*
 
@@ -37,19 +38,15 @@ class ChatActivity : AppCompatActivity() {
                 drawerLayout!!.closeDrawer(Gravity.RIGHT)
             } else {
                 if (userListInRoomFragment == null) {
-                    userListInRoomFragment =
-                        UserListInRoomFragment.getInstance(roomID, chatFragment.getUserList())
-                    getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(id.drawerFragment, userListInRoomFragment)
-                        .commit()
+                    userListInRoomFragment = UserListInRoomFragment.getInstance(roomID, chatFragment!!.userList)
+                    supportFragmentManager.beginTransaction().replace(R.id.drawerFragment, userListInRoomFragment!!).commit()
                 }
                 drawerLayout!!.openDrawer(Gravity.RIGHT)
             }
         })
         // chatting area
         chatFragment = ChatFragment.getInstance(toUid, roomID)
-        supportFragmentManager.beginTransaction().replace(R.id.mainFragment, chatFragment).commit()
+        supportFragmentManager.beginTransaction().replace(R.id.mainFragment, chatFragment!!).commit()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

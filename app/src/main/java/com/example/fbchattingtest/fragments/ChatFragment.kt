@@ -1,4 +1,4 @@
-package com.example.fbchattingtest.Fragments
+package com.example.fbchattingtest.fragments
 
 import android.Manifest.permission
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
