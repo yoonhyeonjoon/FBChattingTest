@@ -41,6 +41,14 @@
         <activity android:name=".ChatModule.ChatActivity" android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".ChatModule.SelectUserActivity" />
         <activity android:name=".photoview.ViewPagerActivity" android:theme="@style/AppTheme.NoActionBar" />
+
+        <service android:name=".functionals.MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+
     </application>
 
 </manifest>

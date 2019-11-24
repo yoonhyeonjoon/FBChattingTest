@@ -14,6 +14,7 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.example.fbchattingtest.ChatModule.SelectUserActivity
 import com.example.fbchattingtest.fragments.ChatRoomFragment
+import com.example.fbchattingtest.fragments.UserFragment
 import com.example.fbchattingtest.fragments.UserListFragment
 import com.google.android.material.tabs.TabLayout
 import com.google.firebase.auth.FirebaseAuth
@@ -25,7 +26,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
-    private var mViewPager: ViewPager? = null
+    //lateinit var mViewPager: ViewPager
     //private var makeRoomBtn: FloatingActionButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +37,7 @@ class MainActivity : AppCompatActivity() {
 
         mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
         //mViewPager = findViewById<ViewPager>(R.id.container)
-        mViewPager?.adapter = mSectionsPagerAdapter
+        container.adapter = mSectionsPagerAdapter
         val tabLayout: TabLayout = findViewById(R.id.tabs)
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener{
 
@@ -55,8 +56,8 @@ class MainActivity : AppCompatActivity() {
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
 
-        mViewPager?.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))
-        tabLayout.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(mViewPager))
+        container.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))
+        tabLayout.addOnTabSelectedListener(TabLayout.ViewPagerOnTabSelectedListener(container))
         sendRegistrationToServer()
         //makeRoomBtn = findViewById(R.id.makeRoomBtn)
 
@@ -111,7 +112,7 @@ class MainActivity : AppCompatActivity() {
             return when (position) {
                 0 -> UserListFragment()
                 1 -> ChatRoomFragment()
-                else -> ChatRoomFragment() // A
+                else -> UserFragment()
             }
         }
 

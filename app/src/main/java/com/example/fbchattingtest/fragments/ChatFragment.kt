@@ -97,16 +97,8 @@ class ChatFragment : Fragment() {
     var progressDialog: ProgressDialog? = null
     var userCount = 0
 
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view: View = inflater.inflate(R.layout.fragment_chat, container, false)
-
-        linearLayoutManager = LinearLayoutManager(context)
-        recyclerView?.layoutManager = linearLayoutManager
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         sendBtn.setOnClickListener {
             val msg = msg_input.text.toString()
@@ -128,6 +120,19 @@ class ChatFragment : Fragment() {
             if (!hasFocus)
                 helpers.hideKeyboard(activity!!)
         }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view: View = inflater.inflate(R.layout.fragment_chat, container, false)
+
+        linearLayoutManager = LinearLayoutManager(context)
+        recyclerView?.layoutManager = linearLayoutManager
+
+
         if (arguments != null) {
             roomID = arguments?.getString("roomID")
             toUid = arguments?.getString("toUid")
@@ -265,10 +270,9 @@ class ChatFragment : Fragment() {
     // get a user info
     private fun getUserInfoFromServer(id: String?) {
         firestore!!.collection("users").document(id!!).get().addOnSuccessListener {
-            val userModel = it.toObject(
-                UserModel::class.java
-            )
-            userList[userModel?.uid!!] = userModel
+            val userModel = it.toObject(UserModel::class.java)
+            if(userModel?.uid != null)  userList[userModel.uid!!] = userModel
+
             if (roomID != null && userCount == userList.size) {
                 mAdapter = ChatRecyclerViewAdapter()
                 recyclerView!!.adapter = mAdapter

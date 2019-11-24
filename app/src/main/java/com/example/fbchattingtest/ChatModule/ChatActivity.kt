@@ -27,9 +27,9 @@ class ChatActivity : AppCompatActivity() {
         val actionBar: ActionBar = supportActionBar!!
         actionBar.setDisplayHomeAsUpEnabled(true)
         actionBar.setHomeButtonEnabled(true)
-        val toUid: String = intent.getStringExtra("toUid")
-        val roomID: String = intent.getStringExtra("roomID")
-        val roomTitle: String = intent.getStringExtra("roomTitle")
+        val toUid: String? = intent?.getStringExtra("toUid")
+        val roomID: String? = intent?.getStringExtra("roomID")
+        val roomTitle: String? = intent?.getStringExtra("roomTitle")
         actionBar.setTitle(roomTitle)
         // left drawer
         drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
@@ -38,7 +38,7 @@ class ChatActivity : AppCompatActivity() {
                 drawerLayout!!.closeDrawer(Gravity.RIGHT)
             } else {
                 if (userListInRoomFragment == null) {
-                    userListInRoomFragment = UserListInRoomFragment.getInstance(roomID, chatFragment!!.userList)
+                    userListInRoomFragment = UserListInRoomFragment.getInstance(roomID!!, chatFragment!!.userList)
                     supportFragmentManager.beginTransaction().replace(R.id.drawerFragment, userListInRoomFragment!!).commit()
                 }
                 drawerLayout!!.openDrawer(Gravity.RIGHT)

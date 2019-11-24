@@ -67,6 +67,7 @@ class ChatRoomFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view: View = inflater.inflate(R.layout.fragment_chat, container, false)
+        val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(inflater.context)
         mAdapter = RecyclerViewAdapter()
         recyclerView.adapter = mAdapter
