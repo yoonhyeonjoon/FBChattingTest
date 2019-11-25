@@ -80,8 +80,10 @@ class ChatFragment : Fragment() {
     var toUid: String? = null
 
     val rootPath: String = helpers.rootPath + "/DirectTalk9/"
-    var recyclerView: RecyclerView? = null
-    lateinit var mAdapter: ChatRecyclerViewAdapter
+    lateinit var recyclerView: RecyclerView
+
+    var mAdapter: ChatRecyclerViewAdapter? = null
+
     @SuppressLint("SimpleDateFormat")
     val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm")
     @SuppressLint("SimpleDateFormat")
@@ -129,8 +131,11 @@ class ChatFragment : Fragment() {
     ): View? {
         val view: View = inflater.inflate(R.layout.fragment_chat, container, false)
 
+
         linearLayoutManager = LinearLayoutManager(context)
-        recyclerView?.layoutManager = linearLayoutManager
+        recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
+        recyclerView.layoutManager = linearLayoutManager
+
 
 
         if (arguments != null) {
@@ -156,10 +161,10 @@ class ChatFragment : Fragment() {
             userCount = 2
         }
 
-        recyclerView?.addOnLayoutChangeListener { _, _, _, bottom, _, _, _, _, oldBottom ->
-            if (bottom < oldBottom) {
-                val lastAdapterItem = mAdapter.itemCount - 1
-                recyclerView?.post {
+        recyclerView.addOnLayoutChangeListener { _, _, _, bottom, _, _, _, _, oldBottom ->
+            if (bottom < oldBottom && mAdapter != null) {
+                val lastAdapterItem = mAdapter!!.itemCount - 1
+                recyclerView.post {
                     var recyclerViewPositionOffset = -1000000
                     val bottomView = linearLayoutManager?.findViewByPosition(lastAdapterItem)
                     if (bottomView != null) recyclerViewPositionOffset = 0 - bottomView.height
@@ -228,7 +233,7 @@ class ChatFragment : Fragment() {
         room.set(data).addOnCompleteListener {
             if (it.isSuccessful) {
                 mAdapter = ChatRecyclerViewAdapter()
-                recyclerView!!.adapter = mAdapter
+                recyclerView.adapter = mAdapter
             }
         }
     }
@@ -272,10 +277,9 @@ class ChatFragment : Fragment() {
         firestore!!.collection("users").document(id!!).get().addOnSuccessListener {
             val userModel = it.toObject(UserModel::class.java)
             if(userModel?.uid != null)  userList[userModel.uid!!] = userModel
-
             if (roomID != null && userCount == userList.size) {
                 mAdapter = ChatRecyclerViewAdapter()
-                recyclerView!!.adapter = mAdapter
+                recyclerView.adapter = mAdapter
             }
         }
     }
@@ -452,7 +456,7 @@ class ChatFragment : Fragment() {
                         }
                     }
                 }
-                recyclerView?.scrollToPosition(messageList!!.size - 1)
+                recyclerView.scrollToPosition(messageList!!.size - 1)
 
             }
         }
@@ -498,56 +502,59 @@ class ChatFragment : Fragment() {
             val messageViewHolder: ChatFragment.MessageViewHolder =
                 holder as ChatFragment.MessageViewHolder
             val message: Message = messageList!![position]
-            setReadCounter(message, messageViewHolder.read_counter)
-            if ("0" == message.msgtype) {                                      // text message
 
-                messageViewHolder.msg_item.text = message.msg
+            if(messageViewHolder.read_counter != null)
+            setReadCounter(message, messageViewHolder.read_counter!!)
+
+            if ("0" == message.msgtype) {                                      // text message
+                messageViewHolder.msg_item?.text = message.msg
             } else if ("2" == message.msgtype) {                                      // file transfer
 
-                messageViewHolder.msg_item.setText(message.filename.toString() + "\n" + message.filesize)
+                messageViewHolder.msg_item?.text = message.filename.toString() + "\n" + message.filesize
                 messageViewHolder.filename = message.filename
                 messageViewHolder.realname = message.msg
                 val file =
                     File(rootPath + message.filename)
                 if (file.exists()) {
-                    messageViewHolder.button_item.text = "Open File"
+                    messageViewHolder.button_item?.text = "Open File"
                 } else {
-                    messageViewHolder.button_item.text = "Download"
+                    messageViewHolder.button_item?.text = "Download"
                 }
             } else {                                                                // image transfer
                 messageViewHolder.realname = message.msg
+                if(messageViewHolder.img_item != null)
                 Glide.with(context!!)
                     .load(storageReference?.child("filesmall/" + message.msg))
                     .apply(RequestOptions().override(1000, 1000))
-                    .into(messageViewHolder.img_item)
+                    .into(messageViewHolder.img_item!!)
             }
             if (myUid != message.uid) {
                 val userModel: UserModel? = userList[message.uid]
-                messageViewHolder.msg_name.setText(userModel?.usernm)
+                messageViewHolder.msg_name?.text = userModel?.usernm
                 if (userModel?.userphoto == null) {
                     Glide.with(context!!).load(R.drawable.user)
                         .apply(requestOptions)
-                        .into(messageViewHolder.user_photo)
+                        .into(messageViewHolder.user_photo!!)
                 } else {
                     Glide.with(context!!)
                         .load(storageReference?.child("userPhoto/" + userModel.userphoto))
                         .apply(requestOptions)
-                        .into(messageViewHolder.user_photo)
+                        .into(messageViewHolder.user_photo!!)
                 }
             }
-            messageViewHolder.divider.visibility = View.INVISIBLE
-            messageViewHolder.divider.layoutParams.height = 0
-            messageViewHolder.timestamp.text = ""
+            messageViewHolder.divider?.visibility = View.INVISIBLE
+            messageViewHolder.divider?.layoutParams?.height = 0
+            messageViewHolder.timestamp?.text = ""
             if (message.timestamp == null) {
                 return
             }
             val day: String = dateFormatDay.format(message.timestamp)
             val timestamp: String = dateFormatHour.format(message.timestamp)
-            messageViewHolder.timestamp.text = timestamp
+            messageViewHolder.timestamp?.text = timestamp
             if (position == 0) {
-                messageViewHolder.divider_date.text = day
-                messageViewHolder.divider.visibility = View.VISIBLE
-                messageViewHolder.divider.layoutParams.height = 60
+                messageViewHolder.divider_date?.text = day
+                messageViewHolder.divider?.visibility = View.VISIBLE
+                messageViewHolder.divider?.layoutParams?.height = 60
             }
             /*messageViewHolder.timestamp.setText("");
         if (message.getTimestamp()==null) {return;}
@@ -572,9 +579,9 @@ class ChatFragment : Fragment() {
                 val beforeMsg: Message = messageList!![position - 1]
                 val beforeDay: String = dateFormatDay.format(beforeMsg.timestamp)
                 if (day != beforeDay && beforeDay != null) {
-                    messageViewHolder.divider_date.text = day
-                    messageViewHolder.divider.visibility = View.VISIBLE
-                    messageViewHolder.divider.layoutParams.height = 60
+                    messageViewHolder.divider_date?.text = day
+                    messageViewHolder.divider?.visibility = View.VISIBLE
+                    messageViewHolder.divider?.layoutParams?.height = 60
                 }
             }
         }
@@ -610,23 +617,23 @@ class ChatFragment : Fragment() {
 
 
     inner class MessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        var user_photo: ImageView = view.findViewById(R.id.user_photo)
-        var msg_item: TextView = view.findViewById(R.id.msg_item)
-        var img_item: ImageView = view.findViewById(R.id.img_item) // only item_chatimage_
-        var msg_name: TextView = view.findViewById(R.id.msg_name)
-        var timestamp: TextView = view.findViewById(R.id.timestamp)
-        var read_counter: TextView = view.findViewById(R.id.read_counter)
-        var divider: LinearLayout = view.findViewById(R.id.divider)
-        var divider_date: TextView = view.findViewById(R.id.divider_date)
-        var button_item: TextView = view.findViewById(R.id.button_item) // only item_chatfile_
-        var msgLine_item: LinearLayout = view.findViewById(R.id.msgLine_item) // only item_chatfile_
+        var user_photo: ImageView? = view.findViewById(R.id.user_photo)
+        var msg_item: TextView? = view.findViewById(R.id.msg_item)
+        var img_item: ImageView? = view.findViewById(R.id.img_item) // only item_chatimage_
+        var msg_name: TextView? = view.findViewById(R.id.msg_name)
+        var timestamp: TextView? = view.findViewById(R.id.timestamp)
+        var read_counter: TextView? = view.findViewById(R.id.read_counter)
+        var divider: LinearLayout? = view.findViewById(R.id.divider)
+        var divider_date: TextView? = view.findViewById(R.id.divider_date)
+        var button_item: TextView? = view.findViewById(R.id.button_item) // only item_chatfile_
+        var msgLine_item: LinearLayout? = view.findViewById(R.id.msgLine_item) // only item_chatfile_
         var filename: String = ""
         var realname: String = ""
 
 
          var downloadClickListener = object : View.OnClickListener {
                 override fun onClick(view: View) {
-                    if ("Download" == button_item.text) {
+                    if ("Download" == button_item?.text) {
                         download()
                     } else {
                         openWith()
@@ -641,7 +648,7 @@ class ChatFragment : Fragment() {
                     showProgressDialog("Downloading File.")
                     val localFile = File(rootPath, filename)
                     storageReference?.child("files/" + realname)?.getFile(localFile)?.addOnSuccessListener{
-                        button_item.setText("Open File")
+                        button_item?.text = "Open File"
                         hideProgressDialog()
                         Log.e("DirectTalk9 ", "local file created $localFile")
                     }?.addOnFailureListener{
@@ -686,8 +693,8 @@ class ChatFragment : Fragment() {
         // file download and open
         init {
             // for file
-            msgLine_item.setOnClickListener(downloadClickListener)
-            img_item.setOnClickListener(imageClickListener)
+            msgLine_item?.setOnClickListener(downloadClickListener)
+            img_item?.setOnClickListener(imageClickListener)
         }
 
 

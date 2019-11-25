@@ -62,7 +62,7 @@ class LoginActivity : AppCompatActivity() {
                             userModel.testdataset = 3
 
                             val db = FirebaseFirestore.getInstance()
-                            db.collection("userdb").document(uid!!)
+                            db.collection("users").document(uid!!)
                                 .set(userModel)
                                 .addOnSuccessListener {
                                     val intent =

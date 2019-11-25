@@ -75,8 +75,7 @@ class MainActivity : AppCompatActivity() {
             FirebaseInstanceId.getInstance().token
         val map = mutableMapOf<String, String?>()
         map["token"] = token
-        FirebaseFirestore.getInstance().collection("users")
-            .document(uid).set(map, SetOptions.merge())
+        FirebaseFirestore.getInstance().collection("users").document(uid).set(map, SetOptions.merge())
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

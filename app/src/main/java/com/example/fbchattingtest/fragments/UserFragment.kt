@@ -38,10 +38,10 @@ class UserFragment : Fragment() {
         private val PICK_FROM_ALBUM = 1
     }
 
-    private var user_photo: ImageView? = null
-    private var user_id: EditText? = null
-    private var user_name: EditText? = null
-    private var user_msg: EditText? = null
+   // private var user_photo: ImageView? = null
+   // private var user_id: EditText? = null
+   // private var user_name: EditText? = null
+   // private var user_msg: EditText? = null
     private var userModel: UserModel? = null
     private var userPhotoUri: Uri? = null
 
