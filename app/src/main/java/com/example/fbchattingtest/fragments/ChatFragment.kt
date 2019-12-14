@@ -346,6 +346,7 @@ class ChatFragment : Fragment() {
         if (requestCode != PICK_FROM_ALBUM) {
             return
         }
+
         // small image
         Glide.with(context!!)
             .asBitmap()

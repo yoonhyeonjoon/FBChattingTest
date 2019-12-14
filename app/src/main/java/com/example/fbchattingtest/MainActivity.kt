@@ -40,7 +40,6 @@ class MainActivity : AppCompatActivity() {
         container.adapter = mSectionsPagerAdapter
         val tabLayout: TabLayout = findViewById(R.id.tabs)
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener{
-
             @SuppressLint("RestrictedApi")
             override fun onTabSelected(tab: TabLayout.Tab) {
                 if (tab.position == 1) {     // char room
